@@ -7,53 +7,77 @@
     
     <!-- Pretendard Font -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
 
-    <link rel="stylesheet" href="css/style.css">
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .placeholder-center::before {
+                content: attr(data-placeholder);
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                color: #9ca3af; /* text-gray-400 */
+            }
+        }
+        body {
+            font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+        }
+    </style>
 </head>
-<body>
-    <div class="container">
-        <header>
-            <h1>BizTone Converter</h1>
-            <p>당신의 생각을 전문적인 비즈니스 언어로 변환해 드립니다.</p>
+<body class="bg-gray-100 text-gray-800 flex items-center justify-center min-h-screen p-4">
+    <div class="container max-w-6xl mx-auto">
+        <header class="text-center mb-10">
+            <h1 class="text-4xl font-extrabold text-gray-900 mb-2">BizTone Converter</h1>
+            <p class="text-lg text-gray-600">당신의 생각을 전문적인 비즈니스 언어로 변환해 드립니다.</p>
         </header>
         
-        <main class="converter-wrapper">
-            <!-- Input Section -->
-            <section class="card input-card">
-                <textarea id="original-text" placeholder="변환할 내용을 입력하세요... (최대 500자)"></textarea>
-                <div class="card-footer">
-                    <div id="char-counter">0 / 500</div>
-                </div>
-            </section>
-            
-            <!-- Controls Section -->
-            <section class="controls">
-                <div class="target-selection">
-                    <p>누구에게 보내는 메시지인가요?</p>
-                    <div class="radio-group">
-                        <input type="radio" id="target-upward" name="target" value="upward" checked>
-                        <label for="target-upward">상사 (Upward)</label>
-                        
-                        <input type="radio" id="target-lateral" name="target" value="lateral">
-                        <label for="target-lateral">타팀 동료 (Lateral)</label>
-                        
-                        <input type="radio" id="target-external" name="target" value="external">
-                        <label for="target-external">고객 (External)</label>
+        <main class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+            <!-- Input & Controls Section -->
+            <div class="lg:col-span-3 flex flex-col gap-6">
+                <!-- Input Card -->
+                <section class="bg-white rounded-lg shadow-sm flex flex-col h-80">
+                    <div class="flex-grow p-1">
+                        <textarea id="original-text" class="w-full h-full p-5 text-base resize-none border-0 focus:ring-0 placeholder-gray-400" placeholder="변환할 내용을 입력하세요... (최대 500자)"></textarea>
                     </div>
-                </div>
-                <button id="convert-btn">
-                    <span>변환하기</span>
-                    <div class="spinner"></div>
-                </button>
-            </section>
+                    <div class="border-t border-gray-200 px-5 py-2 flex justify-end items-center text-sm text-gray-500">
+                        <span id="char-counter">0 / 500</span>
+                    </div>
+                </section>
+                
+                <!-- Controls Card -->
+                <section class="bg-white rounded-lg shadow-sm p-6">
+                    <div class="mb-5">
+                        <p class="font-semibold text-gray-800 mb-3">누구에게 보내는 메시지인가요?</p>
+                        <div id="target-group" class="grid grid-cols-3 gap-3">
+                            <input type="radio" id="target-upward" name="target" value="upward" class="hidden" checked>
+                            <label for="target-upward" class="text-center py-3 px-2 border border-gray-300 rounded-md cursor-pointer transition-all duration-200 hover:border-indigo-500 hover:bg-indigo-50 text-gray-700">상사</label>
+                            
+                            <input type="radio" id="target-lateral" name="target" value="lateral" class="hidden">
+                            <label for="target-lateral" class="text-center py-3 px-2 border border-gray-300 rounded-md cursor-pointer transition-all duration-200 hover:border-indigo-500 hover:bg-indigo-50 text-gray-700">타팀 동료</label>
+                            
+                            <input type="radio" id="target-external" name="target" value="external" class="hidden">
+                            <label for="target-external" class="text-center py-3 px-2 border border-gray-300 rounded-md cursor-pointer transition-all duration-200 hover:border-indigo-500 hover:bg-indigo-50 text-gray-700">고객</label>
+                        </div>
+                    </div>
+                    <button id="convert-btn" class="w-full bg-indigo-600 text-white py-3 px-6 text-lg font-bold rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center">
+                        <span class="btn-text">변환하기</span>
+                        <div id="spinner" class="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full hidden"></div>
+                    </button>
+                </section>
+            </div>
 
             <!-- Output Section -->
-            <section class="card output-card">
-                <div id="converted-text" class="placeholder">변환 결과가 여기에 표시됩니다.</div>
-                <div class="card-footer">
-                    <button id="copy-btn" title="결과 복사하기">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-copy" viewBox="0 0 16 16">
-                            <path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/>
+            <section class="lg:col-span-2 bg-white rounded-lg shadow-sm flex flex-col h-[524px]">
+                <div id="converted-text" class="flex-grow p-6 text-base overflow-y-auto relative" data-placeholder="변환 결과가 여기에 표시됩니다."></div>
+                <div class="border-t border-gray-200 px-5 py-3 flex justify-end">
+                    <button id="copy-btn" title="결과 복사하기" class="inline-flex items-center gap-2 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-md px-3 py-2 transition-colors disabled:opacity-50">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M13.5 2a.5.5 0 0 0-.5.5v10.5a.5.5 0 0 0 .5.5h-10a.5.5 0 0 0-.5-.5V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v11a1.5 1.5 0 0 0 1.5 1.5h11a1.5 1.5 0 0 0 1.5-1.5v-11a.5.5 0 0 0-.5-.5z"/>
+                            <path d="M2.646 2.646a.5.5 0 0 1 .708 0L5.5 4.793l2.146-2.147a.5.5 0 1 1 .708.708L6.207 5.5l2.147 2.146a.5.5 0 0 1-.708.708L5.5 6.207 3.354 8.354a.5.5 0 0 1-.708-.708L4.793 5.5 2.646 3.354a.5.5 0 0 1 0-.708"/>
+        
                         </svg>
                         <span>복사하기</span>
                     </button>
@@ -61,12 +85,12 @@
             </section>
         </main>
         
-        <footer>
+        <footer class="text-center mt-10 py-5 text-sm text-gray-500">
             <p>&copy; 2026 BizTone Inc. All rights reserved.</p>
         </footer>
     </div>
 
-    <div id="toast" class="toast"></div>
+    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 px-6 py-3 rounded-lg shadow-lg transition-all duration-300 opacity-0 invisible"></div>
 
     <script src="js/script.js"></script>
 </body>

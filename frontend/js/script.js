@@ -5,28 +5,43 @@ document.addEventListener('DOMContentLoaded', () => {
     const copyBtn = document.getElementById('copy-btn');
     const charCounter = document.getElementById('char-counter');
     const toast = document.getElementById('toast');
+    const spinner = document.getElementById('spinner');
+    const btnText = convertBtn.querySelector('.btn-text');
+    const targetGroup = document.getElementById('target-group');
 
     const MAX_CHARS = 500;
 
-    /**
-     * 실시간 글자 수 카운터 업데이트
-     */
-    originalTextInput.addEventListener('input', () => {
+    // --- Event Listeners ---
+
+    originalTextInput.addEventListener('input', handleCharCounter);
+    convertBtn.addEventListener('click', handleConvert);
+    copyBtn.addEventListener('click', handleCopy);
+    targetGroup.addEventListener('change', handleRadioSelection);
+
+    // --- Initial State ---
+
+    updateRadioLabels();
+    checkInitialOutput();
+
+
+    // --- Handler Functions ---
+
+    function handleCharCounter() {
         const currentLength = originalTextInput.value.length;
         charCounter.textContent = `${currentLength} / ${MAX_CHARS}`;
+        
         if (currentLength > MAX_CHARS) {
-            charCounter.style.color = 'var(--error-color)';
+            charCounter.classList.remove('text-gray-500');
+            charCounter.classList.add('text-red-500');
             originalTextInput.value = originalTextInput.value.substring(0, MAX_CHARS);
             charCounter.textContent = `${MAX_CHARS} / ${MAX_CHARS}`;
         } else {
-            charCounter.style.color = '#888';
+            charCounter.classList.remove('text-red-500');
+            charCounter.classList.add('text-gray-500');
         }
-    });
+    }
 
-    /**
-     * 텍스트 변환 API 호출
-     */
-    convertBtn.addEventListener('click', async () => {
+    async function handleConvert() {
         const text = originalTextInput.value.trim();
         if (!text) {
             showToast("변환할 내용을 입력해주세요.", 'error');
@@ -35,22 +50,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const selectedTarget = document.querySelector('input[name="target"]:checked').value;
 
-        // 로딩 상태 시작
         setLoading(true);
-        convertedTextDiv.classList.remove('placeholder');
         convertedTextDiv.textContent = "AI가 변환 중입니다...";
+        convertedTextDiv.classList.remove('text-red-500', 'placeholder-center');
 
         try {
-            // 1단계에서는 /api/convert 가 더미 응답을 반환
             const response = await fetch('http://127.0.0.1:5000/api/convert', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    text: text,
-                    target: selectedTarget,
-                }),
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text, target: selectedTarget }),
             });
 
             if (!response.ok) {
@@ -62,24 +70,21 @@ document.addEventListener('DOMContentLoaded', () => {
             convertedTextDiv.textContent = data.converted_text;
 
         } catch (error) {
-            convertedTextDiv.textContent = `오류가 발생했습니다: ${error.message}`;
-            convertedTextDiv.style.color = 'var(--error-color)';
+            convertedTextDiv.textContent = `오류: ${error.message}`;
+            convertedTextDiv.classList.add('text-red-500');
         } finally {
-            // 로딩 상태 종료
             setLoading(false);
+            checkInitialOutput();
         }
-    });
+    }
 
-    /**
-     * 변환된 텍스트 클립보드에 복사
-     */
-    copyBtn.addEventListener('click', () => {
+    function handleCopy() {
         const textToCopy = convertedTextDiv.textContent;
-        if (textToCopy && !convertedTextDiv.classList.contains('placeholder')) {
+        const isPlaceholder = convertedTextDiv.dataset.placeholder === textToCopy;
+
+        if (textToCopy && !isPlaceholder) {
             navigator.clipboard.writeText(textToCopy)
-                .then(() => {
-                    showToast("결과가 클립보드에 복사되었습니다.");
-                })
+                .then(() => showToast("결과가 클립보드에 복사되었습니다."))
                 .catch(err => {
                     console.error('Copy failed:', err);
                     showToast("복사에 실패했습니다.", 'error');
@@ -87,35 +92,68 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             showToast("복사할 내용이 없습니다.", 'error');
         }
-    });
+    }
 
-    /**
-     * 로딩 상태 설정/해제
-     * @param {boolean} isLoading - 로딩 상태 여부
-     */
-    function setLoading(isLoading) {
-        convertBtn.disabled = isLoading;
-        if (isLoading) {
-            convertBtn.classList.add('loading');
-        } else {
-            convertBtn.classList.remove('loading');
+    function handleRadioSelection(event) {
+        if (event.target.type === 'radio') {
+            updateRadioLabels();
         }
     }
 
-    /**
-     * 토스트 메시지 표시
-     * @param {string} message - 표시할 메시지
-     * @param {string} type - 메시지 타입 ('success' 또는 'error')
-     */
+
+    // --- UI Helper Functions ---
+
+    function updateRadioLabels() {
+        const radios = document.querySelectorAll('input[name="target"]');
+        radios.forEach(radio => {
+            const label = document.querySelector(`label[for="${radio.id}"]`);
+            if (radio.checked) {
+                label.classList.add('bg-indigo-600', 'text-white', 'border-indigo-600');
+                label.classList.remove('hover:bg-indigo-50', 'text-gray-700', 'border-gray-300');
+            } else {
+                label.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-600');
+                label.classList.add('hover:bg-indigo-50', 'text-gray-700', 'border-gray-300');
+            }
+        });
+    }
+
+    function setLoading(isLoading) {
+        convertBtn.disabled = isLoading;
+        if (isLoading) {
+            btnText.classList.add('invisible');
+            spinner.classList.remove('hidden');
+        } else {
+            btnText.classList.remove('invisible');
+            spinner.classList.add('hidden');
+        }
+    }
+
+    function checkInitialOutput() {
+        if (!convertedTextDiv.textContent.trim()) {
+            convertedTextDiv.classList.add('placeholder-center');
+        } else {
+            convertedTextDiv.classList.remove('placeholder-center');
+        }
+        copyBtn.disabled = !convertedTextDiv.textContent.trim();
+    }
+
     let toastTimer;
     function showToast(message, type = 'success') {
         clearTimeout(toastTimer);
-        toast.textContent = message;
-        toast.style.backgroundColor = type === 'success' ? 'var(--success-color)' : 'var(--error-color)';
-        toast.classList.add('show');
         
+        toast.textContent = message;
+        toast.classList.remove('invisible', 'opacity-0', 'bg-green-500', 'bg-red-500');
+
+        if (type === 'success') {
+            toast.classList.add('bg-green-500', 'text-white');
+        } else {
+            toast.classList.add('bg-red-500', 'text-white');
+        }
+
+        toast.classList.remove('invisible', 'opacity-0');
+
         toastTimer = setTimeout(() => {
-            toast.classList.remove('show');
+            toast.classList.add('opacity-0', 'invisible');
         }, 3000);
     }
 });
