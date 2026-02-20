@@ -1,0 +1,141 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "프로젝트 환경 설정 및 의존성 관리",
+        "description": "Python 가상환경을 구축하고 필요한 백엔드 라이브러리를 설치하며 프로젝트 구조를 초기화합니다.",
+        "details": "1. `python -m venv .venv`로 가상환경 생성.\n2. `backend/requirements.txt` 생성 및 `flask`, `flask-cors`, `python-dotenv`, `groq` 기입.\n3. `pip install -r requirements.txt` 실행.\n4. `.env` 파일 생성 및 `GROQ_API_KEY` 환경 변수 정의.",
+        "testStrategy": "가상환경 활성화 후 pip list 명령어로 라이브러리 설치 여부 확인 및 .env 파일 로드 테스트 수행.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 2,
+        "title": "Flask 백엔드 서버 스켈레톤 구현",
+        "description": "API 요청을 처리할 Flask 서버의 기본 구조와 정적 파일 서빙 로직을 작성합니다.",
+        "details": "1. `backend/app.py` 작성.\n2. `Flask(__name__, static_folder='../frontend', static_url_path='/')` 설정.\n3. CORS(app) 적용.\n4. `@app.route('/')`에서 index.html 반환.\n5. `@app.route('/api/convert', methods=['POST'])` 엔드포인트 정의.",
+        "testStrategy": "서버 실행 후 localhost:5000 접속 시 프론트엔드 파일(index.html)이 정상적으로 렌더링되는지 확인.",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 3,
+        "title": "Groq AI API 연동 및 기본 변환 로직 개발",
+        "description": "Groq SDK를 사용하여 'kimi-k2-instruct-0905' 모델과의 통신을 구현합니다.",
+        "details": "1. `groq.Groq(api_key=...)` 클라이언트 초기화.\n2. 사용자 입력 텍스트와 대상(target)을 인자로 받아 Groq API를 호출하는 `convert_text` 함수 작성.\n3. 모델명 `kimi-k2-instruct-0905` 지정 및 시스템/유저 메시지 구성.",
+        "testStrategy": "Postman 또는 cURL을 사용하여 /api/convert 엔드포인트에 더미 데이터를 전송하고 AI 응답이 오는지 확인.",
+        "priority": "high",
+        "dependencies": [
+          2
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 4,
+        "title": "대상별 페르소나 프롬프트 엔지니어링",
+        "description": "상사, 동료, 고객 대상에 최적화된 한글 시스템 프롬프트를 작성하여 적용합니다.",
+        "details": "1. 'Upward': 보고 중심의 정중한 격식체 프롬프트 작성.\n2. 'Lateral': 친절하고 명확한 협조 요청 중심의 프롬프트 작성.\n3. 'External': 극존칭과 전문성을 강조한 공지/안내용 프롬프트 작성.\n4. 사용자 선택값(Upward, Lateral, External)에 따라 시스템 프롬프트를 분기 처리.",
+        "testStrategy": "각 대상별로 동일한 문장을 입력했을 때 출력되는 말투의 톤앤매너가 의도대로 다른지 검증.",
+        "priority": "medium",
+        "dependencies": [
+          3
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 5,
+        "title": "반응형 HTML 구조 및 레이아웃 설계",
+        "description": "PRD의 디자인 요구사항을 반영하여 프론트엔드 마크업을 작성합니다.",
+        "details": "1. `frontend/index.html` 작성.\n2. 헤더, 메인 컨테이너(2단 분할 카드 UI), 푸터 구성.\n3. 입력 텍스트 영역(textarea, max 500자), 대상 선택용 Select 박스, 변환 버튼, 결과 표시 영역 구현.\n4. 글자 수 표시용 스팬 태그(id='char-count') 추가.",
+        "testStrategy": "브라우저에서 HTML을 열어 모든 입력 요소와 버튼이 명세대로 존재하는지 확인.",
+        "priority": "medium",
+        "dependencies": [
+          1
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 6,
+        "title": "비즈니스 톤 UI CSS 스타일링",
+        "description": "전문적인 비즈니스 톤의 색상 팔레트와 폰트, 반응형 디자인을 적용합니다.",
+        "details": "1. `frontend/css/style.css` 작성.\n2. Primary(#4A90E2), Secondary(#F5F7FA) 색상 적용.\n3. Flexbox/Grid를 활용하여 데스크톱 2단, 모바일(768px 이하) 1단 레이아웃 구현.\n4. 버튼 호버 효과 및 카드 그림자(box-shadow) 스타일링.",
+        "testStrategy": "개발자 도구를 통해 다양한 화면 크기(데스크톱, 모바일)에서 레이아웃이 깨지지 않고 변하는지 확인.",
+        "priority": "medium",
+        "dependencies": [
+          5
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 7,
+        "title": "프론트엔드 JavaScript 기능 구현",
+        "description": "글자 수 계산, API 호출 및 UI 업데이트 로직을 구현합니다.",
+        "details": "1. `frontend/js/script.js` 작성.\n2. textarea 입력 시 실시간 글자 수 계산 및 500자 제한 로직 구현.\n3. '변환하기' 버튼 클릭 시 Fetch API를 사용하여 백엔드 /api/convert 호출.\n4. 응답 결과를 결과창에 렌더링.",
+        "testStrategy": "텍스트 입력 시 글자 수가 실시간으로 변하는지 확인하고, 버튼 클릭 시 백엔드와 통신하여 결과가 나타나는지 테스트.",
+        "priority": "medium",
+        "dependencies": [
+          2,
+          6
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 8,
+        "title": "복사 기능 및 사용자 피드백 구현",
+        "description": "클립보드 복사 기능과 성공/실패 시의 시각적 알림을 구현합니다.",
+        "details": "1. `navigator.clipboard.writeText`를 이용한 복사 기능 구현.\n2. 복사 성공 시 '복사되었습니다!' 토스트 메시지 표시 (색상 #50E3C2).\n3. 하단 '도움됨 / 도움 안 됨' 피드백 버튼 UI 및 클릭 이벤트 연결.",
+        "testStrategy": "복사 버튼 클릭 후 실제로 클립보드에 텍스트가 복사되었는지 확인하고 토스트 알림 표시 여부 검증.",
+        "priority": "low",
+        "dependencies": [
+          7
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 9,
+        "title": "에러 처리 및 로딩 상태 관리",
+        "description": "API 지연 또는 실패 상황에 대비한 사용자 경험을 개선합니다.",
+        "details": "1. 변환 중일 때 버튼 내 스피너 애니메이션 표시 및 버튼 비활성화.\n2. API 호출 실패 시 에러 메시지(#D0021B) 표시 및 재시도 버튼 제공.\n3. 타임아웃 처리 로직 추가 (최대 5초).",
+        "testStrategy": "백엔드 서버를 끄거나 응답 지연을 강제로 발생시켜 에러 메시지와 스피너가 정상 작동하는지 확인.",
+        "priority": "medium",
+        "dependencies": [
+          7
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 10,
+        "title": "통합 테스트 및 배포 설정",
+        "description": "전체 기능 검수 후 Vercel 배포를 위한 설정을 완료합니다.",
+        "details": "1. `vercel.json` 설정 파일 작성 (Flask 서버리스 함수 설정).\n2. 모든 환경 변수(.env)가 Vercel 대시보드에 등록되었는지 확인.\n3. PRD 내 모든 성공 지표 및 기능 요구사항(FR-01~06) 최종 점검.",
+        "testStrategy": "Vercel Preview 배포 환경에서 모든 기능이 프로덕션 수준으로 동작하는지 최종 시나리오 테스트 수행.",
+        "priority": "high",
+        "dependencies": [
+          8,
+          9
+        ],
+        "status": "pending",
+        "subtasks": []
+      }
+    ],
+    "metadata": {
+      "created": "2026-02-20T08:50:24.488Z",
+      "updated": "2026-02-20T08:50:24.488Z",
+      "description": "Tasks for master context"
+    }
+  }
+}
