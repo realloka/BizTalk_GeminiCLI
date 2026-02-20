@@ -1,1 +1,306 @@
-/* 2단계에서 스타일이 추가될 예정입니다. */
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
+
+:root {
+    --primary-color: #4A90E2;
+    --secondary-color: #F5F7FA;
+    --text-color: #333333;
+    --light-text-color: #FFFFFF;
+    --success-color: #50E3C2;
+    --error-color: #D0021B;
+    --border-color: #E0E6ED;
+    --disabled-color: #B0C4DE;
+
+    --font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+    
+    --h1-size: 28px;
+    --h2-size: 22px;
+    --body-size: 16px;
+    --caption-size: 14px;
+}
+
+/* --- Base & Reset --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--secondary-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+}
+
+/* --- Layout --- */
+.container {
+    width: 100%;
+    max-width: 1200px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+header h1 {
+    font-size: var(--h1-size);
+    color: var(--primary-color);
+    margin-bottom: 8px;
+}
+
+header p {
+    font-size: var(--body-size);
+    color: #666;
+}
+
+.converter-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 20px;
+    grid-template-areas: 
+        "input output"
+        "controls output";
+}
+
+.input-card { grid-area: input; }
+.controls { grid-area: controls; }
+.output-card { grid-area: output; }
+
+/* --- Card --- */
+.card {
+    background-color: var(--light-text-color);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    border: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+}
+
+.input-card {
+    height: 300px;
+}
+
+.output-card {
+    height: 400px;
+}
+
+/* --- Textarea & Output Area --- */
+textarea#original-text,
+div#converted-text {
+    width: 100%;
+    height: 100%;
+    padding: 16px;
+    border: none;
+    background: transparent;
+    font-family: var(--font-family);
+    font-size: var(--body-size);
+    resize: none;
+    outline: none;
+    flex-grow: 1;
+}
+
+div#converted-text {
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: keep-all;
+}
+
+div#converted-text.placeholder {
+    color: #999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-footer {
+    border-top: 1px solid var(--border-color);
+    padding: 8px 16px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    background-color: #FCFDFE;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+
+#char-counter {
+    font-size: var(--caption-size);
+    color: #888;
+}
+
+/* --- Controls --- */
+.controls {
+    background-color: var(--light-text-color);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    border: 1px solid var(--border-color);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.target-selection p {
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.radio-group {
+    display: flex;
+    gap: 10px;
+}
+
+.radio-group input[type="radio"] {
+    display: none;
+}
+
+.radio-group label {
+    flex-grow: 1;
+    text-align: center;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.radio-group input[type="radio"]:checked + label {
+    background-color: var(--primary-color);
+    color: var(--light-text-color);
+    border-color: var(--primary-color);
+}
+
+.radio-group label:hover {
+    border-color: var(--primary-color);
+}
+
+/* --- Buttons --- */
+#convert-btn {
+    width: 100%;
+    background-color: var(--primary-color);
+    color: var(--light-text-color);
+    border: none;
+    padding: 12px;
+    font-size: var(--body-size);
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-top: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+#convert-btn:hover {
+    background-color: #3a7bc8;
+}
+
+#convert-btn:disabled {
+    background-color: var(--disabled-color);
+    cursor: not-allowed;
+}
+
+#copy-btn {
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    color: #555;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+#copy-btn:hover {
+    background-color: #f0f0f0;
+    border-color: #ccc;
+}
+
+/* --- Spinner --- */
+.spinner {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: var(--light-text-color);
+    animation: spin 1s ease-in-out infinite;
+    transform: translate(-50%, -50%);
+}
+
+#convert-btn.loading .spinner {
+    display: block;
+}
+
+#convert-btn.loading span {
+    visibility: hidden;
+}
+
+@keyframes spin {
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* --- Toast Notification --- */
+.toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--success-color);
+    color: var(--light-text-color);
+    padding: 12px 24px;
+    border-radius: 6px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.toast.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+
+/* --- Footer --- */
+footer {
+    text-align: center;
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+    color: #999;
+    font-size: var(--caption-size);
+}
+
+/* --- Responsive Layout --- */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+
+    .converter-wrapper {
+        grid-template-columns: 1fr;
+        grid-template-areas: 
+            "input"
+            "controls"
+            "output";
+    }
+
+    .input-card {
+        height: 250px;
+    }
+
+    .output-card {
+        height: 250px;
+    }
+}

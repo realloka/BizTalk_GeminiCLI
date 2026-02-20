@@ -7,7 +7,8 @@ from dotenv import load_dotenv
 # .env 파일에서 환경 변수 로드
 load_dotenv()
 
-app = Flask(__name__)
+# frontend 폴더를 정적 파일 루트로 설정
+app = Flask(__name__, static_folder='../frontend', static_url_path='')
 # 모든 도메인에서의 요청을 허용하도록 CORS 설정 (개발용)
 CORS(app)
 
@@ -18,8 +19,9 @@ CORS(app)
 # client = Groq(api_key=api_key)
 
 @app.route('/')
-def index():
-    return "BizTone Converter Backend is running!"
+def serve_index():
+    """- frontend/index.html 을 기본 페이지로 제공"""
+    return app.send_static_file('index.html')
 
 @app.route('/health')
 def health_check():
@@ -60,4 +62,4 @@ def convert_text():
 if __name__ == '__main__':
     # Vercel 환경에서는 gunicorn과 같은 WSGI 서버를 사용하므로,
     # 이 부분은 로컬 개발 시에만 실행됩니다.
-    app.run(debug=True, port=5001)
+    app.run(debug=True, port=5000)
